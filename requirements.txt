@@ -1,0 +1,22 @@
+
+# Configuração
+python-dotenv
+
+# Frontend
+streamlit
+requests
+
+# Backend
+fastapi
+uvicorn[standard]
+httpx
+
+# Engenharia de IA: LangChain + LangGraph
+langchain
+langchain-openai
+langgraph
+
+# Validação e testes
+pydantic
+pytest
+pytest-asyncio
