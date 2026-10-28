@@ -1,0 +1,55 @@
+
+services:
+  db:
+    image: postgres:16
+    container_name: farma-aura-db
+    environment:
+      POSTGRES_USER: farma_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
+      POSTGRES_DB: farma_aura
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U farma_user -d farma_aura"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: farma-aura-api
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      PYTHONPATH: /app/backend/src
+      DATABASE_URL: ${DATABASE_URL_DOCKER:?Defina DATABASE_URL_DOCKER no arquivo .env}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: farma-aura-streamlit
+    command: streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+    environment:
+      PYTHONPATH: /app:/app/backend/src
+      API_BASE_URL: http://api:8000
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Defina OPENAI_API_KEY no arquivo .env}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
