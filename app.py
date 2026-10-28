@@ -4,7 +4,11 @@ from decimal import Decimal, InvalidOperation
 import streamlit as st
 
 from backend.src.farmacia_api.graph import build_farma_aura_graph
-
+from backend.src.farmacia_api.services.api_client import (
+    listar_produtos,
+    cadastrar_produto,
+    FarmaAuraAPIError,
+)
 
 st.set_page_config(
     page_title="Farma Aura | Comparador de preços",
@@ -65,6 +69,104 @@ st.caption(
     "Preço final, estoque e entrega podem variar."
 )
 
+
+with st.expander("📚 Catálogo de produtos", expanded=False):
+    st.write(
+        "Cadastre produtos no banco de dados ou consulte "
+        "os produtos que já estão registrados."
+    )
+
+    with st.form("cadastro_produto_form"):
+        nome = st.text_input(
+            "Nome do produto",
+            placeholder="Ex.: Dipirona 500 mg",
+        )
+
+        principio_ativo = st.text_input(
+            "Princípio ativo",
+            placeholder="Ex.: Dipirona sódica",
+        )
+
+        concentracao = st.text_input(
+            "Concentração",
+            placeholder="Ex.: 500 mg",
+        )
+
+        apresentacao = st.text_input(
+            "Apresentação",
+            placeholder="Ex.: Comprimidos",
+        )
+
+        cadastrar = st.form_submit_button(
+            "Cadastrar produto",
+            use_container_width=True,
+        )
+
+    if cadastrar:
+        campos = {
+            "Nome": nome,
+            "Princípio ativo": principio_ativo,
+            "Concentração": concentracao,
+            "Apresentação": apresentacao,
+        }
+
+        campos_vazios = [
+            campo
+            for campo, valor in campos.items()
+            if not valor.strip()
+        ]
+
+        if campos_vazios:
+            st.warning(
+                "Preencha os campos: "
+                + ", ".join(campos_vazios)
+            )
+        else:
+            try:
+                with st.spinner("Cadastrando produto..."):
+                    produto = cadastrar_produto(
+                        nome=nome.strip(),
+                        principio_ativo=principio_ativo.strip(),
+                        concentracao=concentracao.strip(),
+                        apresentacao=apresentacao.strip(),
+                    )
+
+                st.success(
+                    f"Produto '{produto['nome']}' cadastrado "
+                    "com sucesso no banco de dados!"
+                )
+                st.json(produto)
+
+            except FarmaAuraAPIError as exc:
+                st.error(f"Erro ao cadastrar: {exc}")
+
+    st.divider()
+
+    if st.button(
+        "🔄 Consultar produtos cadastrados",
+        key="consultar_catalogo",
+        use_container_width=True,
+    ):
+        try:
+            with st.spinner("Consultando o catálogo..."):
+                produtos = listar_produtos()
+
+            if produtos:
+                st.dataframe(
+                    produtos,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                st.caption(
+                    f"Total de produtos cadastrados: {len(produtos)}"
+                )
+            else:
+                st.info(
+                    "Nenhum produto cadastrado no catálogo ainda."
+                )
+
+        except FarmaAuraAPIError as exc:
+            st.error(f"Erro ao consultar o catálogo: {exc}")
 
 @st.cache_resource
 def get_graph():
