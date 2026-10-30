@@ -233,54 +233,6 @@ API_BASE_URL=http://127.0.0.1:8000</code></pre>
   <li>Consulte as ofertas retornadas e compare as informações disponíveis.</li>
 </ol>
 
-<h2 id="api">🔗 API REST</h2>
-
-<p>A FastAPI disponibiliza endpoints para gerenciamento do catálogo de produtos.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Método</th>
-      <th>Endpoint</th>
-      <th>Descrição</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>GET</td>
-      <td><code>/health</code></td>
-      <td>Verificação de saúde da API.</td>
-    </tr>
-    <tr>
-      <td>GET</td>
-      <td><code>/produtos</code></td>
-      <td>Lista produtos cadastrados.</td>
-    </tr>
-    <tr>
-      <td>POST</td>
-      <td><code>/produtos</code></td>
-      <td>Cadastra um produto.</td>
-    </tr>
-    <tr>
-      <td>GET</td>
-      <td><code>/produtos/{product_id}</code></td>
-      <td>Consulta um produto.</td>
-    </tr>
-    <tr>
-      <td>PATCH</td>
-      <td><code>/produtos/{product_id}</code></td>
-      <td>Atualiza um produto.</td>
-    </tr>
-    <tr>
-      <td>DELETE</td>
-      <td><code>/produtos/{product_id}</code></td>
-      <td>Remove um produto.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Com a API em execução, acesse <code>/docs</code> para consultar a documentação interativa.</p>
-
 <h2 id="security">🔐 Segurança</h2>
 
 <ul>
